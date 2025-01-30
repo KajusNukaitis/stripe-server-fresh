@@ -25,14 +25,17 @@ app.post('/create-checkout-session', async (req, res) => {
     // Create session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [{
-        price_data: {
-          currency: 'usd',
-          product_data: { name: 'FreeEmail Premium' },
-          unit_amount: 1000, // $10 in cents
-        },
-        quantity: 1
-      }],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: { name: 'FreeEmail Premium' },
+            unit_amount: 1000,         // $10 in cents
+            recurring: { interval: 'month' } // <-- ADDED for subscription
+          },
+          quantity: 1
+        }
+      ],
       mode: 'subscription', // or 'payment'
       success_url: 'https://freeemailnow.com/premium-success',
       cancel_url:  'https://freeemailnow.com/premium-cancel',
