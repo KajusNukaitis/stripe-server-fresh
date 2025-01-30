@@ -1,14 +1,20 @@
-require('dotenv').config(); // allows reading .env
+// Load env
+require('dotenv').config();
+
+// Import express and init
 const express = require('express');
 const app = express();
-const Stripe = require('stripe');
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
+// Create Stripe instance with your secret key from .env
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+// JSON parsing
 app.use(express.json());
 
 // POST /create-checkout-session
 app.post('/create-checkout-session', async (req, res) => {
   try {
+    // Create session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{
@@ -16,21 +22,23 @@ app.post('/create-checkout-session', async (req, res) => {
           currency: 'usd',
           product_data: { name: 'FreeEmail Premium' },
           unit_amount: 1000, // $10 in cents
-          recurring: { interval: 'month' }
         },
         quantity: 1
       }],
-      mode: 'subscription',
-      success_url: 'https://YOUR-FRONTEND.com/premium-success',
-      cancel_url:  'https://YOUR-FRONTEND.com/premium-cancel',
+      mode: 'subscription', // or 'payment'
+      success_url: 'https://freeemailnow.com/premium-success',
+      cancel_url:  'https://freeemailnow.com/premium-cancel',
     });
 
     res.json({ id: session.id });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to create checkout session' });
+  } catch (error) {
+    console.error('Error creating session:', error);
+    res.status(500).json({ error: 'Something went wrong' });
   }
 });
 
+// Listen
 const PORT = process.env.PORT || 4242;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
