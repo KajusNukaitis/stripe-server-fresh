@@ -3,7 +3,15 @@ require('dotenv').config();
 
 // Import express and init
 const express = require('express');
+// Import the 'cors' library
+const cors = require('cors');
+
 const app = express();
+
+// Enable CORS for freeemailnow.com
+app.use(cors({
+  origin: 'https://freeemailnow.com'
+}));
 
 // Create Stripe instance with your secret key from .env
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
